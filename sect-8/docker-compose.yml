@@ -2,3 +2,12 @@ version: '3'
 services:
   postgres:
     image: 'postgres:latest'
+  redis:
+    image: 'redis:latest'
+  server:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    volumes:
+      - /app/node_modules # leave the node modules as-is
+      - ./server:/app     # redirect accesses of /app to ./server
