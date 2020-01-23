@@ -4,7 +4,7 @@ services:
     image: 'postgres:latest'
   redis:
     image: 'redis:latest'
-  server:
+  api:
     build:
       dockerfile: Dockerfile.dev
       context: ./server
@@ -33,3 +33,10 @@ services:
     volumes:
       - /app/node_modules
       - ./worker:/app
+  nginx:
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports: 
+      - '3050:80'
+    restart: always
