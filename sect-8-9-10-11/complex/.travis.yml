@@ -1,0 +1,35 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t finleymcilwaine/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true finleymcilwaine/react-test npm test
+
+after_success:
+  - docker build -t finleymcilwaine/multi-client ./client
+  - docker build -t finleymcilwaine/multi-nginx ./nginx
+  - docker build -t finleymcilwaine/multi-server ./server
+  - docker build -t finleymcilwaine/multi-worker ./worker
+  # Log in to the Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Push those production images to docker hub!
+  - docker push finleymcilwaine/multi-client 
+  - docker push finleymcilwaine/multi-nginx
+  - docker push finleymcilwaine/multi-server
+  - docker push finleymcilwaine/multi-worker
+
+deploy:
+  edge: true
+  provider: elasticbeanstalk
+  region: us-east-2
+  app: multi-docker
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-us-east-2-666739205128
+  bucket_path: docker-multi
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY

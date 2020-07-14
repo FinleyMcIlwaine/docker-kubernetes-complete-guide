@@ -22,7 +22,7 @@ const pgClient = new Pool({
 pgClient.on('error', () => { console.error('Lost PG connection!') });
 
 pgClient
-  .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+  .query('CREATE TABLE IF NOT EXISTS values (number INT);')
   .catch((err) => { console.error(err); });
 
 // Redis client setup
@@ -42,7 +42,7 @@ app.get('/', (req,res) => {
 });
 
 app.get('/values/all', async (req,res) => {
-  const values = await pgClient.query('SELECT * FROM values');
+  const values = await pgClient.query('SELECT * FROM values;');
   res.send(values.rows);
 });
 
@@ -61,7 +61,7 @@ app.post('/values', async (req,res) => {
   redisPublisher.publish('insert', index);
 
   // Add the new index to postgres
-  pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
+  pgClient.query('INSERT INTO values(number) VALUES($1);', [index]);
 
   res.send({ working : true });
 });
